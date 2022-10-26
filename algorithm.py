@@ -5,22 +5,30 @@ Steven Han and Preston Tang
 CS 4613
 '''
 
+from asyncore import write
 import heapq
 
 
-
+# The algorithm used to solve the puzzle
+# returns a tuple: (total nodes generated, solution path, function cost for each of these nodes in the path)
 def a_star_algorithm(start, goal, weight):
     # Each node should have a tuple of its f(n), and its resulting board state
     frontier = heapq()
     # key is the state, and the value is the lowest path cost
     reached = dict()
-    frontier.put((find_weighted_cost(start,), start))
+    nodes_generated = 0
+    '''
+    STILL NEED TO FIND A WAY TO GET THE IDEAL SOLUTION PATH, AND THE FUNCTION FOR EACH OF THESE
+    '''
+    frontier.put((find_weighted_cost(start, weight), start))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()
         if(node == goal):
             return node
         for (weighted_cost, curr_state) in expand_node(node[1], node):
+            # update nodes generated
+            nodes_generated += 1
             if curr_state not in reached or weighted_cost < reached[curr_state]:
                 reached[curr_state] = weighted_cost
                 frontier.push(weighted_cost, curr_state)
@@ -72,7 +80,9 @@ def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    return
+    information = read_file("input.txt")
+    result = a_star_algorithm(information[0], information[1], information[2])
+    write_solution_to_file(information[0], information[1], information[2], result[0], result[1], result[2])
 
 if __name__ == "__main__":
     main()
