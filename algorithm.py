@@ -7,7 +7,6 @@ CS 4613
 
 import heapq
 
-from numpy import string_
 
 
 def a_star_algorithm(start, goal, weight):
