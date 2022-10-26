@@ -28,11 +28,11 @@ def a_star_algorithm(matrix, goal):
 
 
 def expand_node(problem, node):
-    #PRESTON IT'S YOUR TIME TO SHINE
+    #PRESTON'S
     pass
 
 def read_file(file_name):
-    #CMON PRESTON YOU GOT THIS!!!
+    #PRESTON YOU GOT THIS!!!
     pass
 
 def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of_actions, A_costs_string):
@@ -55,7 +55,7 @@ def main():
     list1.append([1,2,3])
     list1.append([4,5,6])
     list1.append([7,8,9])
-    write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"])
+    write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # Crying cause it don't work rn T_T
 
 if __name__ == "__main__":
     main()
