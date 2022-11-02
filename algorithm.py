@@ -8,24 +8,27 @@ CS 4613
 from asyncore import write
 import heapq
 
+# Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
+class Node:
+    def __init__(self, currState, parent, cost):
+        self.currState = currState
+        self.parent = parent
+        self.cost = cost
 
 # The algorithm used to solve the puzzle
-# returns a tuple: (total nodes generated, solution path, function cost for each of these nodes in the path)
+# returns a tuple: (total nodes generated, goal node)
 def a_star_algorithm(start, goal, weight):
     # Each node should have a tuple of its f(n), and its resulting board state
     frontier = heapq()
     # key is the state, and the value is the lowest path cost
     reached = dict()
-    nodes_generated = 0
-    '''
-    STILL NEED TO FIND A WAY TO GET THE IDEAL SOLUTION PATH, AND THE FUNCTION FOR EACH OF THESE
-    '''
-    frontier.put((find_weighted_cost(start, weight), start))
+    nodes_generated = 1
+    frontier.put(Node(start, None, find_weighted_cost(start, weight)))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()
-        if(node == goal):
-            return node
+        if(node.currState == goal):
+            return (nodes_generated, node)
         for (weighted_cost, curr_state) in expand_node(node[1], node):
             # update nodes generated
             nodes_generated += 1
@@ -49,6 +52,14 @@ def expand_node(curr_matrix, node):
 def read_file(file_name):
     #PRESTON YOU GOT THIS!!!
     # read the file, and return start, goal, and weight
+    pass
+
+# From the node, find an array of the solution path
+def find_solution_path(node):
+    pass
+
+# From the goal node, return an array of the function costs
+def find_function_costs(node):
     pass
 
 # Writes the solution to an output file, output.txt
@@ -82,7 +93,7 @@ def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of
 def main():
     information = read_file("input.txt")
     result = a_star_algorithm(information[0], information[1], information[2])
-    write_solution_to_file(information[0], information[1], information[2], result[0], result[1], result[2])
+    write_solution_to_file(information[0], information[1], information[2], result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
 if __name__ == "__main__":
     main()
