@@ -41,7 +41,23 @@ def a_star_algorithm(start, goal, weight):
 # Finds the total cost of the current matrix
 # Does manhattan distance on all nodes that aren't matched up with goal
 # Adds path cost, then multiplied by weight
-def find_weighted_cost(curr_matrix, goal, weight, path_cost):
+def find_weighted_cost(curr_node, goal, weight, change):
+    prev_node = curr_node.parent
+    # look in the goal state, and see where the change value should be, and how far away the current change is from it
+    total_cost = 0
+    # find the value in the goal
+    for r1 in range(len(goal)):
+        for c1 in range(len(goal[r1])):
+            if curr_node.currState[change[0]][change[1]] == goal[r1][c1]:
+                # Does manhattan distance
+                total_cost += (abs(change[0] - r1) + abs(change[1] - c1))
+    # f(n) = h(n) * W + g(n)
+    total_cost *= weight
+    total_cost += prev_node.cost
+    return total_cost
+
+def initialize_start_cost(curr_matrix, goal, weight):
+    # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
     for r in range(len(curr_matrix)):
         for c in range(len(curr_matrix[r])):
@@ -56,14 +72,15 @@ def find_weighted_cost(curr_matrix, goal, weight, path_cost):
                             total_cost += (abs(r - r1) + abs(c - c1))
     # f(n) = h(n) + g(n)
     total_cost += path_cost
-
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
     return total_cost
 
+
 def expand_node(curr_matrix, node):
     #PRESTON'S
     # Should return a tuple with the full cost and the resulting board state
+    # Do creating
     pass
 
 # Reads the file, returns (start, goal, weight)
