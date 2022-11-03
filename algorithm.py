@@ -10,10 +10,12 @@ import heapq
 
 # Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
 class Node:
-    def __init__(self, currState, parent, cost):
+    def __init__(self, currState, parent, cost, prev_action, depth):
         self.currState = currState
         self.parent = parent
         self.cost = cost
+        self.prev_action = prev_action
+        self.depth = depth
 
 # The algorithm used to solve the puzzle
 # returns a tuple: (total nodes generated, goal node)
@@ -70,8 +72,6 @@ def initialize_start_cost(curr_matrix, goal, weight):
                         if curr_matrix[r][c] == goal[r1][c1]:
                             # Does manhattan distance
                             total_cost += (abs(r - r1) + abs(c - c1))
-    # f(n) = h(n) + g(n)
-    total_cost += path_cost
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
     return total_cost
@@ -126,9 +126,15 @@ def read_file(file_name):
 
     return (start, goal, weight)
 
-# From the node, find an array of the solution path
+# From the node, find an array of the solution path and function costs
 def find_solution_path(node):
-    pass
+    ans = [None] * node.depth
+    ptr = len(ans) - 1
+    while(node.parent):
+        ans[ptr] = node.prev_action
+        ptr -= 1
+    return ans
+
 
 # From the goal node, return an array of the function costs
 def find_function_costs(node):
