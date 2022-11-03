@@ -19,11 +19,11 @@ class Node:
 # returns a tuple: (total nodes generated, goal node)
 def a_star_algorithm(start, goal, weight):
     # Each node should have a tuple of its f(n), and its resulting board state
-    frontier = heapq()
+    frontier = []
     # key is the state, and the value is the lowest path cost
     reached = dict()
     nodes_generated = 1
-    frontier.put(Node(start, None, find_weighted_cost(start, weight)))
+    heapq.heappush(frontier, (Node(start, None, find_weighted_cost(start, goal, weight, 0))))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()
@@ -38,21 +38,76 @@ def a_star_algorithm(start, goal, weight):
     # If no solution
     return "FAILURE"
 
+# Finds the total cost of the current matrix
+# Does manhattan distance on all nodes that aren't matched up with goal
+# Adds path cost, then multiplied by weight
+def find_weighted_cost(curr_matrix, goal, weight, path_cost):
+    total_cost = 0
+    for r in range(len(curr_matrix)):
+        for c in range(len(curr_matrix[r])):
+            # If they don't match up, calculate manhattan distance
+            if curr_matrix[r][c] != goal[r][c]:
+                # Find where it is in goal
+                # Guaranteed to find node
+                for r1 in range(len(goal)):
+                    for c1 in range(len(goal[r1])):
+                        if curr_matrix[r][c] == goal[r1][c1]:
+                            # Does manhattan distance
+                            total_cost += (abs(r - r1) + abs(c - c1))
+    # f(n) = h(n) + g(n)
+    total_cost += path_cost
 
-def find_weighted_cost(curr_matrix, weight):
-    # For Preston
-    # Find the full cost of the mann dist*weight + path cost 
-    return 0
+    # f(n) = h(n) * W + g(n)
+    total_cost *= weight
+    return total_cost
 
 def expand_node(curr_matrix, node):
     #PRESTON'S
     # Should return a tuple with the full cost and the resulting board state
     pass
 
+# Reads the file, returns (start, goal, weight)
 def read_file(file_name):
-    #PRESTON YOU GOT THIS!!!
-    # read the file, and return start, goal, and weight
-    pass
+    weight = 0.0
+    start = [[0] * 4 for i in range(4)]
+    goal = [[0] * 4 for i in range(4)]
+    data = ""
+
+    # Reads the entire file into data
+    with open(file_name) as file:
+        data = file.read()
+
+    # Removes all trailing spaces from data
+    temp_data = []
+    for i in range(len(data.split("\n"))):
+        temp_data.append(data.split("\n")[i].rstrip())
+    data = "\n".join(temp_data)
+
+    # Splits data by empty line
+    split_data = data.split("\n\n")
+
+    # Weight is the first thing in the file
+    weight = float(split_data[0])
+
+    # Start is the 2nd
+    # Splits it by new line, then by space
+    # Puts it all into start matrix
+    start_rows = split_data[1].split("\n")
+    for r in range(len(start_rows)):
+        start_col = start_rows[r].split(" ")
+        for c in range(len(start_col)):
+            start[r][c] = start_col[c]
+
+    # Goal is the 3rd
+    # Splits it by new line, then by space
+    # Puts it all into goal matrix
+    goal_rows = split_data[2].split("\n")
+    for r in range(len(goal_rows)):
+        goal_col = goal_rows[r].split(" ")
+        for c in range(len(goal_col)):
+            goal[r][c] = goal_col[c]
+
+    return (start, goal, weight)
 
 # From the node, find an array of the solution path
 def find_solution_path(node):
@@ -91,7 +146,8 @@ def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    information = read_file("input.txt")
+    information = read_file("Input2.txt")
+    print("Information:", information)
     result = a_star_algorithm(information[0], information[1], information[2])
     write_solution_to_file(information[0], information[1], information[2], result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
