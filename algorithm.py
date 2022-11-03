@@ -5,7 +5,7 @@ Steven Han and Preston Tang
 CS 4613
 '''
 
-from asyncore import write
+# from asyncore import write
 import heapq
 
 # Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
