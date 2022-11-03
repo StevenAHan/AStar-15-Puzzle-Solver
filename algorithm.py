@@ -17,6 +17,7 @@ class Node:
         self.prev_action = prev_action
         self.depth = depth
 
+
 # The algorithm used to solve the puzzle
 # returns a tuple: (total nodes generated, goal node)
 def a_star_algorithm(start, goal, weight):
@@ -31,12 +32,12 @@ def a_star_algorithm(start, goal, weight):
         node = frontier.pop()
         if(node.currState == goal):
             return (nodes_generated, node)
-        for (weighted_cost, curr_state) in expand_node(node[1], node):
+        for node in expand_node(node):
             # update nodes generated
             nodes_generated += 1
-            if curr_state not in reached or weighted_cost < reached[curr_state]:
-                reached[curr_state] = weighted_cost
-                frontier.push(weighted_cost, curr_state)
+            if node.curr_state not in reached or node.cost < reached[node.curr_state]:
+                reached[node.curr_state] = node.cost
+                frontier.push(node)
     # If no solution
     return "FAILURE"
 
@@ -77,7 +78,7 @@ def initialize_start_cost(curr_matrix, goal, weight):
     return total_cost
 
 
-def expand_node(curr_matrix, node):
+def expand_node(node):
     #PRESTON'S
     # Should return a tuple with the full cost and the resulting board state
     # Do creating
