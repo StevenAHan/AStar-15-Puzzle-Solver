@@ -13,12 +13,15 @@ weight = 0.0
 
 # Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
 class Node:
-    def __init__(self, currState, parent, cost, prev_action, depth):
-        self.currState = currState
+    def __init__(self, curr_state, parent, cost, prev_action, depth):
+        self.curr_state = curr_state
         self.parent = parent
         self.cost = cost
         self.prev_action = prev_action
         self.depth = depth
+
+    def __lt__(self, other):
+        return self.cost < other.cost
 
 
 # The algorithm used to solve the puzzle
@@ -30,18 +33,18 @@ def a_star_algorithm(start):
     reached = dict()
     nodes_generated = 1
     initial_node = Node(start, None, initialize_start_cost(start), None, 0)
-    heapq.heappush(frontier, (initial_node, initial_node.cost))
+    heapq.heappush(frontier, (initial_node.cost, initial_node))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
-        node = frontier.pop()
-        if(node[0].currState == goal):
+        node = frontier.pop()[1]
+        if(node.curr_state == goal):
             return (nodes_generated, node)
         for node in expand_node(node):
             # update nodes generated
             nodes_generated += 1
-            if node.curr_state not in reached or node.cost < reached[node.curr_state]:
-                reached[node.curr_state] = node.cost
-                heapq.heappush(frontier, (node, node.cost))
+            if tuple(map(tuple, node.curr_state)) not in reached or node.cost < reached[tuple(map(tuple, node.curr_state))]:
+                reached[tuple(map(tuple, node.curr_state))] = node.cost
+                heapq.heappush(frontier, (node.cost, node))
     # If no solution
     return "FAILURE"
 
@@ -55,7 +58,7 @@ def find_weighted_cost(curr_node, change):
     # find the value in the goal
     for r1 in range(len(goal)):
         for c1 in range(len(goal[r1])):
-            if curr_node.currState[change[0]][change[1]] == goal[r1][c1]:
+            if curr_node.curr_state[change[0]][change[1]] == goal[r1][c1]:
                 # Does manhattan distance
                 total_cost += (abs(change[0] - r1) + abs(change[1] - c1))
     # f(n) = h(n) * W + g(n)
@@ -84,7 +87,7 @@ def initialize_start_cost(curr_matrix):
 
 def expand_node(node):
     # Find 0, which denotes the empty space
-    matrix = node.currState
+    matrix = node.curr_state
     space_r = 0
     space_c = 0
     for r in range(len(matrix)):
@@ -100,7 +103,7 @@ def expand_node(node):
         child_matrix[space_r][space_c], child_matrix[space_r + 1][space_c] = child_matrix[space_r + 1][space_c], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "R", node.depth + 1)
-        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
     if space_r > 0:
@@ -108,7 +111,7 @@ def expand_node(node):
         child_matrix[space_r][space_c], child_matrix[space_r - 1][space_c] = child_matrix[space_r - 1][space_c], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "R", node.depth + 1)
-        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
     if space_c != len(matrix[0]) - 1:
@@ -116,7 +119,7 @@ def expand_node(node):
         child_matrix[space_r][space_c], child_matrix[space_r][space_c + 1] = child_matrix[space_r][space_c + 1], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "R", node.depth + 1)
-        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
     if space_c > 0:
@@ -124,7 +127,7 @@ def expand_node(node):
         child_matrix[space_r][space_c], child_matrix[space_r][space_c - 1] = child_matrix[space_r][space_c - 1], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "R", node.depth + 1)
-        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
     return children_list
 
@@ -227,6 +230,9 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
 def main():
     start = read_file("Input2.txt")
     result = a_star_algorithm(start)
+    if result == "FAILURE":
+        print("There is no solution")
+        return
     write_solution_to_file(start, result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
 if __name__ == "__main__":
