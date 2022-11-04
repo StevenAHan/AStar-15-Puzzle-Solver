@@ -8,6 +8,9 @@ CS 4613
 # from asyncore import write
 import heapq
 
+goal = [[0] * 4 for i in range(4)]
+weight = 0.0
+
 # Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
 class Node:
     def __init__(self, currState, parent, cost, prev_action, depth):
@@ -20,13 +23,13 @@ class Node:
 
 # The algorithm used to solve the puzzle
 # returns a tuple: (total nodes generated, goal node)
-def a_star_algorithm(start, goal, weight):
+def a_star_algorithm(start):
     # Each node should have a tuple of its f(n), and its resulting board state
     frontier = []
     # key is the state, and the value is the lowest path cost
     reached = dict()
     nodes_generated = 1
-    heapq.heappush(frontier, (Node(start, None, find_weighted_cost(start, goal, weight, 0))))
+    heapq.heappush(frontier, (Node(start, None, find_weighted_cost(start, 0))))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()
@@ -44,7 +47,7 @@ def a_star_algorithm(start, goal, weight):
 # Finds the total cost of the current matrix
 # Does manhattan distance on all nodes that aren't matched up with goal
 # Adds path cost, then multiplied by weight
-def find_weighted_cost(curr_node, goal, weight, change):
+def find_weighted_cost(curr_node, change):
     prev_node = curr_node.parent
     # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
@@ -59,7 +62,7 @@ def find_weighted_cost(curr_node, goal, weight, change):
     total_cost += prev_node.cost
     return total_cost
 
-def initialize_start_cost(curr_matrix, goal, weight):
+def initialize_start_cost(curr_matrix):
     # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
     for r in range(len(curr_matrix)):
@@ -79,10 +82,50 @@ def initialize_start_cost(curr_matrix, goal, weight):
 
 
 def expand_node(node):
-    #PRESTON'S
-    # Should return a tuple with the full cost and the resulting board state
-    # Do creating
-    pass
+    # Find 0, which denotes the empty space
+    matrix = node.currState
+    space_r = 0
+    space_c = 0
+    for r in range(len(matrix)):
+        for c in range(len(matrix[r])):
+            if matrix[r][c] == 0:
+                space_r = r
+                space_c = c
+
+    children_list = []
+
+    if space_r != len(matrix) - 1:
+        child_matrix = [row[:] for row in matrix]
+        child_matrix[space_r][space_c], child_matrix[space_r + 1][space_c] = child_matrix[space_r + 1][space_c], \
+                                                                             child_matrix[space_r][space_c]
+        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        children_list.append(child)
+
+    if space_r > 0:
+        child_matrix = [row[:] for row in matrix]
+        child_matrix[space_r][space_c], child_matrix[space_r - 1][space_c] = child_matrix[space_r - 1][space_c], \
+                                                                             child_matrix[space_r][space_c]
+        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        children_list.append(child)
+
+    if space_c != len(matrix[0]) - 1:
+        child_matrix = [row[:] for row in matrix]
+        child_matrix[space_r][space_c], child_matrix[space_r][space_c + 1] = child_matrix[space_r][space_c + 1], \
+                                                                             child_matrix[space_r][space_c]
+        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        children_list.append(child)
+
+    if space_c > 0:
+        child_matrix = [row[:] for row in matrix]
+        child_matrix[space_r][space_c], child_matrix[space_r][space_c - 1] = child_matrix[space_r][space_c - 1], \
+                                                                             child_matrix[space_r][space_c]
+        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child.cost = find_weighted_cost(child, goal, weight, (space_r, space_c))
+        children_list.append(child)
+    return children_list
 
 # Reads the file, returns (start, goal, weight)
 def read_file(file_name):
@@ -125,13 +168,17 @@ def read_file(file_name):
         for c in range(len(goal_col)):
             goal[r][c] = goal_col[c]
 
-    return (start, goal, weight)
+    print("Start:", start)
+    print("Goal:", goal)
+    print("Weight:", weight)
+
+    return start
 
 # From the node, find an array of the solution path and function costs
 def find_solution_path(node):
     ans = [None] * node.depth
     ptr = len(ans) - 1
-    while(node.parent):
+    while(node.prev_action):
         ans[ptr] = node.prev_action
         ptr -= 1
     return ans
@@ -139,10 +186,15 @@ def find_solution_path(node):
 
 # From the goal node, return an array of the function costs
 def find_function_costs(node):
-    pass
+    ans = [None] * (node.depth + 1)
+    ptr = len(ans) - 1
+    while(node.parent):
+        ans[ptr] = node.curr_state
+        ptr -= 1
+    return ans
 
 # Writes the solution to an output file, output.txt
-def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of_actions, A_costs_string):
+def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_costs_string):
     text_file = open("output.txt", "w")
     for row in original:
         for elem in row:
@@ -170,10 +222,9 @@ def write_solution_to_file(original, goal, weight, depth, total_nodes, string_of
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    information = read_file("Input2.txt")
-    print("Information:", information)
-    result = a_star_algorithm(information[0], information[1], information[2])
-    write_solution_to_file(information[0], information[1], information[2], result[0], find_solution_path(result[1]), find_function_costs(result[1]))
+    start = read_file("Input2.txt")
+    result = a_star_algorithm(start)
+    write_solution_to_file(start, result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
 if __name__ == "__main__":
     main()
