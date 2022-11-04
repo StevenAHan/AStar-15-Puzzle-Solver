@@ -189,7 +189,7 @@ def find_solution_path(node):
 def find_function_costs(node):
     ans = [None] * (node.depth + 1)
     ptr = len(ans) - 1
-    while(node.parent):
+    while(node):
         ans[ptr] = node.curr_state
         ptr -= 1
     return ans
