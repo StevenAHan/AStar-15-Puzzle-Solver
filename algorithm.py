@@ -133,9 +133,7 @@ def expand_node(node):
 
 # Reads the file, returns (start, goal, weight)
 def read_file(file_name):
-    weight = 0.0
     start = [[0] * 4 for i in range(4)]
-    goal = [[0] * 4 for i in range(4)]
     data = ""
 
     # Reads the entire file into data
@@ -230,6 +228,9 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
 def main():
     start = read_file("Input2.txt")
     result = a_star_algorithm(start)
+    print(goal, weight)
+    print("Goal:", goal)
+    print("Weight:", weight)
     if result == "FAILURE":
         print("There is no solution")
         return
