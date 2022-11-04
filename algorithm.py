@@ -226,7 +226,7 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    start = read_file("Input2.txt")
+    start = read_file("Input1.txt")
     result = a_star_algorithm(start)
     print(goal, weight)
     print("Goal:", goal)
