@@ -29,18 +29,19 @@ def a_star_algorithm(start):
     # key is the state, and the value is the lowest path cost
     reached = dict()
     nodes_generated = 1
-    heapq.heappush(frontier, (Node(start, None, find_weighted_cost(start, 0))))
+    initial_node = Node(start, None, initialize_start_cost(start), None, 0)
+    heapq.heappush(frontier, (initial_node, initial_node.cost))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()
-        if(node.currState == goal):
+        if(node[0].currState == goal):
             return (nodes_generated, node)
         for node in expand_node(node):
             # update nodes generated
             nodes_generated += 1
             if node.curr_state not in reached or node.cost < reached[node.curr_state]:
                 reached[node.curr_state] = node.cost
-                frontier.push(node)
+                heapq.heappush(frontier, (node, node.cost))
     # If no solution
     return "FAILURE"
 
