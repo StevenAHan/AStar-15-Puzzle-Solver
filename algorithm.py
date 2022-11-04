@@ -181,6 +181,7 @@ def find_solution_path(node):
     ptr = len(ans) - 1
     while(node.prev_action):
         ans[ptr] = node.prev_action
+        node = node.parent
         ptr -= 1
     return ans
 
@@ -191,6 +192,7 @@ def find_function_costs(node):
     ptr = len(ans) - 1
     while(node):
         ans[ptr] = node.curr_state
+        node = node.parent
         ptr -= 1
     return ans
 
