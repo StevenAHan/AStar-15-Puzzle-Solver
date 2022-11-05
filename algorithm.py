@@ -131,51 +131,6 @@ def expand_node(node):
         children_list.append(child)
     return children_list
 
-# Reads the file, returns (start, goal, weight)
-def read_file(file_name):
-    start = [[0] * 4 for i in range(4)]
-    data = ""
-
-    # Reads the entire file into data
-    with open(file_name) as file:
-        data = file.read()
-
-    # Removes all trailing spaces from data
-    temp_data = []
-    for i in range(len(data.split("\n"))):
-        temp_data.append(data.split("\n")[i].rstrip())
-    data = "\n".join(temp_data)
-
-    # Splits data by empty line
-    split_data = data.split("\n\n")
-
-    # Weight is the first thing in the file
-    weight = float(split_data[0])
-
-    # Start is the 2nd
-    # Splits it by new line, then by space
-    # Puts it all into start matrix
-    start_rows = split_data[1].split("\n")
-    for r in range(len(start_rows)):
-        start_col = start_rows[r].split(" ")
-        for c in range(len(start_col)):
-            start[r][c] = start_col[c]
-
-    # Goal is the 3rd
-    # Splits it by new line, then by space
-    # Puts it all into goal matrix
-    goal_rows = split_data[2].split("\n")
-    for r in range(len(goal_rows)):
-        goal_col = goal_rows[r].split(" ")
-        for c in range(len(goal_col)):
-            goal[r][c] = goal_col[c]
-
-    print("Start:", start)
-    print("Goal:", goal)
-    print("Weight:", weight)
-
-    return start
-
 # From the node, find an array of the solution path and function costs
 def find_solution_path(node):
     ans = [None] * node.depth
@@ -217,6 +172,52 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
         text_file.write(str(elem) + " ")
     text_file.close()
     return
+
+# Reads the file, returns (start, goal, weight)
+def read_file(file_name):
+    start = [[0] * 4 for i in range(4)]
+    data = ""
+
+    # Reads the entire file into data
+    with open(file_name) as file:
+        data = file.read()
+
+    # Removes all trailing spaces from data
+    temp_data = []
+    for i in range(len(data.split("\n"))):
+        temp_data.append(data.split("\n")[i].rstrip())
+    data = "\n".join(temp_data)
+
+    # Splits data by empty line
+    split_data = data.split("\n\n")
+
+    # Weight is the first thing in the file
+    global weight
+    weight = float(split_data[0])
+
+    # Start is the 2nd
+    # Splits it by new line, then by space
+    # Puts it all into start matrix
+    start_rows = split_data[1].split("\n")
+    for r in range(len(start_rows)):
+        start_col = start_rows[r].split(" ")
+        for c in range(len(start_col)):
+            start[r][c] = start_col[c]
+
+    # Goal is the 3rd
+    # Splits it by new line, then by space
+    # Puts it all into goal matrix
+    goal_rows = split_data[2].split("\n")
+    for r in range(len(goal_rows)):
+        goal_col = goal_rows[r].split(" ")
+        for c in range(len(goal_col)):
+            goal[r][c] = goal_col[c]
+
+    print("Start:", start)
+    print("Goal:", goal)
+    print("Weight:", weight)
+
+    return start
 
 # def main():
 #     list1 = []
