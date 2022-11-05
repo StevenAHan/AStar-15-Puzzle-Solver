@@ -37,15 +37,15 @@ def a_star_algorithm(start):
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()[1]
-        # if (node.depth  > 20): # Temporarily added this due to infinite node bug
-        #     break
-        if(node.curr_state == goal):
+        if (node.depth > 500): # Temporarily added this due to infinite node bug
+            break
+        if node.curr_state == goal:
             return (nodes_generated, node)
         for node in expand_node(node):
             # update nodes generated
-            nodes_generated += 1
-            if tuple(map(tuple, node.curr_state)) not in reached or node.cost < reached[tuple(map(tuple, node.curr_state))]:
-                reached[tuple(map(tuple, node.curr_state))] = node.cost
+            if str(node.curr_state) not in reached or node.cost < reached[str(node.curr_state)]:
+                nodes_generated += 1
+                reached[str(node.curr_state)] = node.cost
                 heapq.heappush(frontier, (node.cost, node))
 
             # This part is for debugging
@@ -234,7 +234,7 @@ def read_file(file_name):
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    start = read_file("Input1.txt")
+    start = read_file("Input2.txt")
     result = a_star_algorithm(start)
     print(goal, weight)
     print("Goal:", goal)
