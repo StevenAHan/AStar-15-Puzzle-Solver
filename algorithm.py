@@ -37,6 +37,8 @@ def a_star_algorithm(start):
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = frontier.pop()[1]
+        # if (node.depth  > 20): # Temporarily added this due to infinite node bug
+        #     break
         if(node.curr_state == goal):
             return (nodes_generated, node)
         for node in expand_node(node):
@@ -45,6 +47,11 @@ def a_star_algorithm(start):
             if tuple(map(tuple, node.curr_state)) not in reached or node.cost < reached[tuple(map(tuple, node.curr_state))]:
                 reached[tuple(map(tuple, node.curr_state))] = node.cost
                 heapq.heappush(frontier, (node.cost, node))
+
+            # This part is for debugging
+            print(node.prev_action, node.depth, int(node.cost))
+            print('\n'.join(['  '.join([str(cell) for cell in row]) for row in node.curr_state]))
+            print()
     # If no solution
     return "FAILURE"
 
@@ -92,7 +99,7 @@ def expand_node(node):
     space_c = 0
     for r in range(len(matrix)):
         for c in range(len(matrix[r])):
-            if matrix[r][c] == 0:
+            if matrix[r][c] == "0":
                 space_r = r
                 space_c = c
 
@@ -102,7 +109,7 @@ def expand_node(node):
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r + 1][space_c] = child_matrix[space_r + 1][space_c], \
                                                                              child_matrix[space_r][space_c]
-        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child = Node(child_matrix, node, 0, "D", node.depth + 1)
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
@@ -110,7 +117,7 @@ def expand_node(node):
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r - 1][space_c] = child_matrix[space_r - 1][space_c], \
                                                                              child_matrix[space_r][space_c]
-        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child = Node(child_matrix, node, 0, "U", node.depth + 1)
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
@@ -126,7 +133,7 @@ def expand_node(node):
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r][space_c - 1] = child_matrix[space_r][space_c - 1], \
                                                                              child_matrix[space_r][space_c]
-        child = Node(child_matrix, node, 0, "R", node.depth + 1)
+        child = Node(child_matrix, node, 0, "L", node.depth + 1)
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
     return children_list
@@ -135,7 +142,7 @@ def expand_node(node):
 def find_solution_path(node):
     ans = [None] * node.depth
     ptr = len(ans) - 1
-    while(node.prev_action):
+    while node.prev_action:
         ans[ptr] = node.prev_action
         node = node.parent
         ptr -= 1
@@ -146,7 +153,7 @@ def find_solution_path(node):
 def find_function_costs(node):
     ans = [None] * (node.depth + 1)
     ptr = len(ans) - 1
-    while(node):
+    while node:
         ans[ptr] = node.curr_state
         node = node.parent
         ptr -= 1
