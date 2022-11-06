@@ -36,8 +36,8 @@ def a_star_algorithm(start):
     heapq.heappush(frontier, (initial_node.cost, initial_node))
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
-        node = frontier.pop()[1]
-        if (node.depth > 500): # Temporarily added this due to infinite node bug
+        node = heapq.heappop(frontier)[1]
+        if (node.depth > 400): # Temporarily added this due to infinite node bug
             break
         if node.curr_state == goal:
             return (nodes_generated, node)
@@ -53,6 +53,8 @@ def a_star_algorithm(start):
             print('\n'.join(['  '.join([str(cell) for cell in row]) for row in node.curr_state]))
             print()
     # If no solution
+    print(len(frontier))
+    print(nodes_generated)
     return "FAILURE"
 
 # Finds the total cost of the current matrix
@@ -153,8 +155,8 @@ def find_solution_path(node):
 def find_function_costs(node):
     ans = [None] * (node.depth + 1)
     ptr = len(ans) - 1
-    while node:
-        ans[ptr] = node.curr_state
+    while node.prev_action:
+        ans[ptr] = node.prev_action
         node = node.parent
         ptr -= 1
     return ans
@@ -171,7 +173,7 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
         for elem in row:
             text_file.write(str(elem) + " ")
         text_file.write("\n")
-    text_file.write("\n" + weight + "\n" + depth + "\n" + total_nodes + "\n")
+    text_file.write("\n" + str(weight) + "\n" + str(depth) + "\n" + str(total_nodes) + "\n")
     for elem in string_of_actions:
         text_file.write(str(elem) + " ")
     text_file.write("\n")
@@ -234,15 +236,15 @@ def read_file(file_name):
 #     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
 
 def main():
-    start = read_file("Input2.txt")
+    start = read_file("Input1.txt")
     result = a_star_algorithm(start)
-    print(goal, weight)
+    print("Start:", start)
     print("Goal:", goal)
     print("Weight:", weight)
     if result == "FAILURE":
         print("There is no solution")
         return
-    write_solution_to_file(start, result[0], find_solution_path(result[1]), find_function_costs(result[1]))
+    write_solution_to_file(start, result[1].depth, result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
 if __name__ == "__main__":
     main()
