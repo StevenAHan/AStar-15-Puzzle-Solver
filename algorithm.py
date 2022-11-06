@@ -7,9 +7,11 @@ CS 4613
 
 # from asyncore import write
 import heapq
+import argparse
 
 goal = [[0] * 4 for i in range(4)]
 weight = 0.0
+input_file = ""
 
 # Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
 class Node:
@@ -70,6 +72,7 @@ def find_weighted_cost(curr_node, change):
             if curr_node.curr_state[change[0]][change[1]] == goal[r1][c1]:
                 # Does manhattan distance
                 total_cost += (abs(change[0] - r1) + abs(change[1] - c1))
+
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
     total_cost += prev_node.cost
@@ -107,6 +110,7 @@ def expand_node(node):
 
     children_list = []
 
+    # Move the space down if able
     if space_r != len(matrix) - 1:
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r + 1][space_c] = child_matrix[space_r + 1][space_c], \
@@ -115,6 +119,7 @@ def expand_node(node):
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
+    # Move the space up if able
     if space_r > 0:
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r - 1][space_c] = child_matrix[space_r - 1][space_c], \
@@ -123,6 +128,7 @@ def expand_node(node):
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
+    # Move the space right if able
     if space_c != len(matrix[0]) - 1:
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r][space_c + 1] = child_matrix[space_r][space_c + 1], \
@@ -131,6 +137,7 @@ def expand_node(node):
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
 
+    # Move the space left if able
     if space_c > 0:
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r][space_c - 1] = child_matrix[space_r][space_c - 1], \
@@ -138,6 +145,7 @@ def expand_node(node):
         child = Node(child_matrix, node, 0, "L", node.depth + 1)
         child.cost = find_weighted_cost(child, (space_r, space_c))
         children_list.append(child)
+
     return children_list
 
 # From the node, find an array of the solution path and function costs
@@ -163,7 +171,8 @@ def find_function_costs(node):
 
 # Writes the solution to an output file, output.txt
 def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_costs_string):
-    text_file = open("output.txt", "w")
+    file_number = int("".join(filter(str.isdigit, input_file)))
+    text_file = open("Output" + str(file_number) + ".txt", "w")
     for row in original:
         for elem in row:
             text_file.write(str(elem) + " ")
@@ -208,18 +217,18 @@ def read_file(file_name):
     # Splits it by new line, then by space
     # Puts it all into start matrix
     start_rows = split_data[1].split("\n")
-    for r in range(len(start_rows)):
+    for r in range(4):
         start_col = start_rows[r].split(" ")
-        for c in range(len(start_col)):
+        for c in range(4):
             start[r][c] = start_col[c]
 
     # Goal is the 3rd
     # Splits it by new line, then by space
     # Puts it all into goal matrix
     goal_rows = split_data[2].split("\n")
-    for r in range(len(goal_rows)):
+    for r in range(4):
         goal_col = goal_rows[r].split(" ")
-        for c in range(len(goal_col)):
+        for c in range(4):
             goal[r][c] = goal_col[c]
 
     print("Start:", start)
@@ -228,19 +237,17 @@ def read_file(file_name):
 
     return start
 
-# def main():
-#     list1 = []
-#     list1.append([1,2,3])
-#     list1.append([4,5,6])
-#     list1.append([7,8,9])
-#     write_solution_to_file(list1, list1, "c", "d", "e", [1,2,3], ["a","b","c","d"]) # IT WORKS
-
 def main():
-    start = read_file("Input1.txt")
+    # Gets what file to read from command line
+    parser = argparse.ArgumentParser(description='Solves 15-puzzle program with Weighted A* Search')
+    parser.add_argument('input_file', action='store', type=str, help='The text file containing the 15-puzzle input')
+    args = parser.parse_args()
+
+    global input_file
+    input_file = args.input_file
+
+    start = read_file(input_file)
     result = a_star_algorithm(start)
-    print("Start:", start)
-    print("Goal:", goal)
-    print("Weight:", weight)
     if result == "FAILURE":
         print("There is no solution")
         return
