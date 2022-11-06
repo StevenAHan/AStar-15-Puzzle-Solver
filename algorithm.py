@@ -76,6 +76,9 @@ def find_weighted_cost(curr_node, change):
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
     total_cost += prev_node.cost
+
+    # Round to fix floating point error
+    total_cost = round(total_cost, 2)
     return total_cost
 
 def initialize_start_cost(curr_matrix):
@@ -94,6 +97,9 @@ def initialize_start_cost(curr_matrix):
                             total_cost += (abs(r - r1) + abs(c - c1))
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
+
+    # Round to fix floating point error
+    total_cost = round(total_cost, 2)
     return total_cost
 
 
