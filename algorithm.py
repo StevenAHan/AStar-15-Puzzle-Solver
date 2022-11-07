@@ -81,6 +81,7 @@ def find_weighted_cost(curr_node, change):
     total_cost = round(total_cost, 2)
     return total_cost
 
+# initializes the cost for the start matrix
 def initialize_start_cost(curr_matrix):
     # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
@@ -102,7 +103,7 @@ def initialize_start_cost(curr_matrix):
     total_cost = round(total_cost, 2)
     return total_cost
 
-
+# expands the node, creating the child nodes
 def expand_node(node):
     # Find 0, which denotes the empty space
     matrix = node.curr_state
