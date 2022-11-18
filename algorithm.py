@@ -38,8 +38,6 @@ def a_star_algorithm(start):
     while len(frontier):
         # Each node should have a priority value calculated from our weighted A*, and the resulting board state
         node = heapq.heappop(frontier)[1]
-        if (node.depth > 400): # Temporarily added this due to infinite node bug
-            break
         if node.curr_state == goal:
             return (nodes_generated, node)
         for node in expand_node(node):
