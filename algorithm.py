@@ -89,7 +89,7 @@ def initialize_start_cost(curr_matrix):
     for r in range(len(curr_matrix)):
         for c in range(len(curr_matrix[r])):
             # If they don't match up, calculate manhattan distance
-            if curr_matrix[r][c] != goal[r][c]:
+            if curr_matrix[r][c] != goal[r][c] and curr_matrix[r][c] != "0":
                 # Find where it is in goal
                 # Guaranteed to find node
                 for r1 in range(len(goal)):
