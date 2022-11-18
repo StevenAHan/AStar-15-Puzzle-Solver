@@ -32,6 +32,7 @@ def a_star_algorithm(start):
     frontier = []
     # key is the state, and the value is the lowest path cost
     reached = dict()
+    nodes_generated = 1
     initial_node = Node(start, None, initialize_start_cost(start), None, 0)
     heapq.heappush(frontier, (initial_node.cost, initial_node))
     while len(frontier):
@@ -40,19 +41,28 @@ def a_star_algorithm(start):
         if (node.depth > 400): # Temporarily added this due to infinite node bug
             break
         if node.curr_state == goal:
-            return (len(reached) + 1, node)
+            return (nodes_generated, node)
         for node in expand_node(node):
             # update nodes generated
             if str(node.curr_state) not in reached or node.cost < reached[str(node.curr_state)]:
+                if str(node.curr_state) not in reached:
+                    nodes_generated += 1
                 reached[str(node.curr_state)] = node.cost
                 heapq.heappush(frontier, (node.cost, node))
+
+            # This part is for debugging
+            print(node.prev_action, node.depth, int(node.cost))
+            print('\n'.join(['  '.join([str(cell) for cell in row]) for row in node.curr_state]))
+            print()
     # If no solution
+    print(len(frontier))
+    print(nodes_generated)
     return "FAILURE"
 
 # Finds the total cost of the current matrix
 # Does manhattan distance on all nodes that aren't matched up with goal
 # Adds path cost, then multiplied by weight
-def find_weighted_cost(curr_node, change):
+def find_weighted_cost(curr_node, change, changed_cost):
     prev_node = curr_node.parent
     # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
@@ -65,11 +75,24 @@ def find_weighted_cost(curr_node, change):
 
     # f(n) = h(n) * W + g(n)
     total_cost *= weight
-    total_cost += prev_node.cost
+    total_cost += (prev_node.cost - changed_cost) + 1
 
     # Round to fix floating point error
     total_cost = round(total_cost, 2)
     return total_cost
+
+# Find cost of changed
+def find_changed_cost(curr_matrix, changed):
+    cost = 0
+    for r1 in range(len(goal)):
+        for c1 in range(len(goal[r1])):
+            if curr_matrix[changed[0]][changed[1]] == goal[r1][c1]:
+                # Does manhattan distance
+                cost += (abs(changed[0] - r1) + abs(changed[1] - c1))
+                break
+    # f(n) = h(n) * W + g(n)
+    cost *= weight
+    return cost
 
 # Initializes the cost for the start matrix
 # Returns the cost
@@ -111,38 +134,42 @@ def expand_node(node):
 
     # Move the space down if able
     if space_r != len(matrix) - 1:
+        changed_cost = find_changed_cost(matrix, [space_r + 1, space_c])
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r + 1][space_c] = child_matrix[space_r + 1][space_c], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "D", node.depth + 1)
-        child.cost = find_weighted_cost(child, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c), changed_cost)
         children_list.append(child)
 
     # Move the space up if able
     if space_r > 0:
+        changed_cost = find_changed_cost(matrix, [space_r - 1, space_c])
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r - 1][space_c] = child_matrix[space_r - 1][space_c], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "U", node.depth + 1)
-        child.cost = find_weighted_cost(child, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c), changed_cost)
         children_list.append(child)
 
     # Move the space right if able
     if space_c != len(matrix[0]) - 1:
+        changed_cost = find_changed_cost(matrix, [space_r, space_c + 1])
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r][space_c + 1] = child_matrix[space_r][space_c + 1], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "R", node.depth + 1)
-        child.cost = find_weighted_cost(child, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c), changed_cost)
         children_list.append(child)
 
     # Move the space left if able
     if space_c > 0:
+        changed_cost = find_changed_cost(matrix, [space_r, space_c - 1])
         child_matrix = [row[:] for row in matrix]
         child_matrix[space_r][space_c], child_matrix[space_r][space_c - 1] = child_matrix[space_r][space_c - 1], \
                                                                              child_matrix[space_r][space_c]
         child = Node(child_matrix, node, 0, "L", node.depth + 1)
-        child.cost = find_weighted_cost(child, (space_r, space_c))
+        child.cost = find_weighted_cost(child, (space_r, space_c), changed_cost)
         children_list.append(child)
 
     return children_list
@@ -231,6 +258,10 @@ def read_file(file_name):
         goal_col = goal_rows[r].split(" ")
         for c in range(4):
             goal[r][c] = goal_col[c]
+
+    print("Start:", start)
+    print("Goal:", goal)
+    print("Weight:", weight)
 
     return start
 
