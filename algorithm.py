@@ -40,6 +40,7 @@ def a_star_algorithm(start):
         if (node.depth > 400): # Temporarily added this due to infinite node bug
             break
         if node.curr_state == goal:
+            print(reached)
             return (len(reached) + 1, node)
         for node in expand_node(node):
             # update nodes generated
