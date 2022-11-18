@@ -46,7 +46,8 @@ def a_star_algorithm(start):
         for node in expand_node(node):
             # update nodes generated
             if str(node.curr_state) not in reached or node.cost < reached[str(node.curr_state)]:
-                nodes_generated += 1
+                if str(node.curr_state) not in reached:
+                    nodes_generated += 1
                 reached[str(node.curr_state)] = node.cost
                 heapq.heappush(frontier, (node.cost, node))
 
