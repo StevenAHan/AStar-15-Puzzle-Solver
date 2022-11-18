@@ -5,7 +5,6 @@ Steven Han and Preston Tang
 CS 4613
 '''
 
-# from asyncore import write
 import heapq
 import argparse
 
@@ -13,7 +12,7 @@ goal = [[0] * 4 for i in range(4)]
 weight = 0.0
 input_file = ""
 
-# Our nodes, containing the state of the board, the current path cost, and a pointer to the parent
+# Our Node Class, containing the state of the board, the current path cost, and a pointer to the parent
 class Node:
     def __init__(self, curr_state, parent, cost, prev_action, depth):
         self.curr_state = curr_state
@@ -27,7 +26,7 @@ class Node:
 
 
 # The algorithm used to solve the puzzle
-# returns a tuple: (total nodes generated, goal node)
+# Returns a tuple: (total nodes generated, goal node)
 def a_star_algorithm(start):
     # Each node should have a tuple of its f(n), and its resulting board state
     frontier = []
@@ -82,7 +81,8 @@ def find_weighted_cost(curr_node, change):
     total_cost = round(total_cost, 2)
     return total_cost
 
-# initializes the cost for the start matrix
+# Initializes the cost for the start matrix
+# Returns the cost
 def initialize_start_cost(curr_matrix):
     # look in the goal state, and see where the change value should be, and how far away the current change is from it
     total_cost = 0
@@ -104,7 +104,8 @@ def initialize_start_cost(curr_matrix):
     total_cost = round(total_cost, 2)
     return total_cost
 
-# expands the node, creating the child nodes
+# Expands the node, creating the child nodes
+# Returns list contains all possible child nodes from given state
 def expand_node(node):
     # Find 0, which denotes the empty space
     matrix = node.curr_state
@@ -157,6 +158,7 @@ def expand_node(node):
     return children_list
 
 # From the node, find an array of the solution path and function costs
+# Returns the array
 def find_solution_path(node):
     ans = [None] * node.depth
     ptr = len(ans) - 1
@@ -167,7 +169,7 @@ def find_solution_path(node):
     return ans
 
 
-# From the goal node, return an array of the function costs
+# From the goal node, returns an array of the function costs
 def find_function_costs(node):
     ans = [None] * (node.depth + 1)
     ptr = len(ans) - 1
@@ -200,6 +202,7 @@ def write_solution_to_file(original, depth, total_nodes, string_of_actions, A_co
     return
 
 # Reads the file, returns (start, goal, weight)
+# Returns the initial state and initializes global variables
 def read_file(file_name):
     start = [[0] * 4 for i in range(4)]
     data = ""
@@ -259,6 +262,7 @@ def main():
     if result == "FAILURE":
         print("There is no solution")
         return
+
     write_solution_to_file(start, result[1].depth, result[0], find_solution_path(result[1]), find_function_costs(result[1]))
 
 if __name__ == "__main__":
