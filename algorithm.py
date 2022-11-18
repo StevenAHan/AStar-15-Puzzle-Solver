@@ -32,7 +32,6 @@ def a_star_algorithm(start):
     frontier = []
     # key is the state, and the value is the lowest path cost
     reached = dict()
-    nodes_generated = 1
     initial_node = Node(start, None, initialize_start_cost(start), None, 0)
     heapq.heappush(frontier, (initial_node.cost, initial_node))
     while len(frontier):
@@ -41,22 +40,13 @@ def a_star_algorithm(start):
         if (node.depth > 400): # Temporarily added this due to infinite node bug
             break
         if node.curr_state == goal:
-            return (nodes_generated, node)
+            return (len(reached) + 1, node)
         for node in expand_node(node):
             # update nodes generated
             if str(node.curr_state) not in reached or node.cost < reached[str(node.curr_state)]:
-                if str(node.curr_state) not in reached:
-                    nodes_generated += 1
                 reached[str(node.curr_state)] = node.cost
                 heapq.heappush(frontier, (node.cost, node))
-
-            # This part is for debugging
-            print(node.prev_action, node.depth, int(node.cost))
-            print('\n'.join(['  '.join([str(cell) for cell in row]) for row in node.curr_state]))
-            print()
     # If no solution
-    print(len(frontier))
-    print(nodes_generated)
     return "FAILURE"
 
 # Finds the total cost of the current matrix
@@ -241,10 +231,6 @@ def read_file(file_name):
         goal_col = goal_rows[r].split(" ")
         for c in range(4):
             goal[r][c] = goal_col[c]
-
-    print("Start:", start)
-    print("Goal:", goal)
-    print("Weight:", weight)
 
     return start
 
